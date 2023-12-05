@@ -3,6 +3,10 @@
 @inject ITaskService TaskService
 @inject NavigationManager NavigationManager
 
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
 <h3>Tasks</h3>
 
 @if (userTasks == null)
@@ -11,26 +15,28 @@
 }
 else if (userTasks.Count == 0)
 {
-    <span>You haven't created any tasks yet. Click here to create one.</span>
+    <span>You haven't created any tasks yet. Click <a href="#" @onclick="CreateTask">here</a> to create one.</span>
 }
 else
 {
+    <button @onclick="CreateTask" class="btn btn-primary">Create a task</button>
+
     <table class="table">
         <thead>
             <tr>
                 <th>
                     <button @onclick="SortByName" class="btn btn-link">
-                        Name <i class="bi bi-sort-alpha-down"></i>
+                        Name
                     </button>
                 </th>
                 <th>
                     <button @onclick="SortByCompleted" class="btn btn-link">
-                        Completed <i class="bi bi-sort-numeric-down"></i>
+                        Completed
                     </button>
                 </th>
                 <th>
                     <button @onclick="SortByPriority" class="btn btn-link">
-                        Priority <i class="bi bi-arrow-up-down"></i>
+                        Priority
                     </button>
                 </th>
                 <th>Edit</th>
@@ -86,7 +92,7 @@ else
 
     void CreateTask()
     {
-        NavigationManager.NavigateTo("/edit-task");
+        NavigationManager.NavigateTo("/create-task");
     }
 
     void EditTask(int Id)

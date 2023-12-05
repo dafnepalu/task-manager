@@ -1,0 +1,190 @@
+﻿@page "/create-task"
+@page "/edit-task/{id:int}"
+@page "/delete-task/{id:int}"
+@inject ITaskService TaskService
+@inject NavigationManager NavigationManager
+
+<style>
+    .page-container {
+        position: relative;
+    }
+
+    .toast-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+    }
+</style>
+
+<div class="page-container">
+    <div class="toast-overlay">
+        <Toast @ref="toastRef" Title="@toastTitle" Message="@toastMessage" HasConfirmation="@hasConfirmation" OnConfirmation="ConfirmDeleteAction" />
+    </div>
+
+    @if (Id == null)
+    {
+        <h3>Create New Task</h3>
+
+        <button @onclick="GoToTasks" type="button" class="btn btn-primary">Go back to your tasks</button>
+
+        <form @onsubmit="Submit">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input id="name" class="form-control" @bind="UserTask.Name" />
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select id="priority" class="form-control" @bind="UserTask.Priority">
+                    @foreach (var priority in Enum.GetValues(typeof(Priority)))
+                    {
+                        <option value="@priority">@priority</option>
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create Task</button>
+        </form>
+    }
+    else
+    {
+        <h3>Edit @UserTask.Name</h3>
+
+        <button @onclick="GoToTasks" type="button" class="btn btn-primary">Go back to your tasks</button>
+
+        <form @onsubmit="Submit">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input id="name" class="form-control" @bind="UserTask.Name" />
+            </div>
+
+            <div class="form-group">
+                <label for="isCompleted">Is it done?</label>
+                <input id="isCompleted" type="checkbox" @bind="UserTask.IsCompleted" />
+            </div>
+
+            <div class="form-group">
+                <label for="priority">Priority:</label>
+                <select id="priority" class="form-control" @bind="UserTask.Priority">
+                    @foreach (var priority in Enum.GetValues(typeof(Priority)))
+                    {
+                        <option value="@priority">@priority</option>
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            @if (Id != null)
+            {
+                <button @onclick="ConfirmDeletion" type="button" class="btn btn-danger">Delete</button>
+            }
+        </form>
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    [SupplyParameterFromForm]
+    UserTask UserTask { get; set; } = new UserTask
+        {
+            Name = string.Empty,
+            IsCompleted = false,
+            Priority = Priority.Low
+        };
+
+    Toast? toastRef;
+    string? toastTitle;
+    string? toastMessage;
+    bool hasConfirmation;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != null)
+        {
+            UserTask = await TaskService.GetTaskById((int)Id);
+        }
+    }
+
+    async Task Submit()
+    {
+        try
+        {
+            if (Id != null)
+            {
+                await TaskService.EditTask((int)Id, UserTask);
+                toastTitle = "Success!";
+                toastMessage = "Task updated successfully!";
+            }
+            else
+            {
+                await TaskService.AddTask(UserTask);
+                toastTitle = "Success!";
+                toastMessage = "New task created successfully!";
+            }
+            toastRef.Show();
+        }
+        catch (Exception ex)
+        {
+            toastTitle = "Error!";
+            toastMessage = "An error occurred: " + ex.Message;
+            toastRef.Show();
+        }
+
+    }
+
+    async Task DeleteTask()
+    {
+        try
+        {
+            if (Id != null)
+            {
+                await TaskService.DeleteTask((int)Id);
+                NavigationManager.NavigateTo("/tasks");
+                toastTitle = "Success!";
+                toastMessage = "Task deleted successfully!";
+                toastRef.Show();
+            }
+        }
+        catch (Exception ex)
+        {
+            toastTitle = "Error!";
+            toastMessage = "An error occurred: " + ex.Message;
+            toastRef.Show();
+        }
+    }
+
+    void ConfirmDeletion()
+    {
+        hasConfirmation = true;
+        toastTitle = "Delete Task";
+        toastMessage = "Are you sure you want to delete this task?";
+        toastRef.Show();
+    }
+
+    async Task ConfirmDeleteAction(bool confirmed)
+    {
+        if (confirmed && Id != null)
+        {
+            await DeleteTask();
+        }
+        await toastRef.HideToast();
+        ResetToast();
+    }
+
+    void ResetToast()
+    {
+        toastTitle = null;
+        toastMessage = null;
+        hasConfirmation = false;
+    }
+
+    void GoToTasks()
+    {
+        NavigationManager.NavigateTo("/tasks");
+    }
+}

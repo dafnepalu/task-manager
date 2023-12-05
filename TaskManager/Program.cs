@@ -25,6 +25,23 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
+builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+{
+    var clientId = builder.Configuration["Authentication:Google:ClientId"];
+    var clientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+    if (clientId != null && clientSecret != null)
+    {
+        googleOptions.ClientId = clientId;
+        googleOptions.ClientSecret = clientSecret;
+    }
+    else
+    {
+        throw new InvalidOperationException("Google authentication settings are missing.");
+    }
+});
+
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
