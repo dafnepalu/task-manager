@@ -23,6 +23,10 @@ This project is a Blazor web application (server-side) built with OAuth 2.0 and 
 ### User Interface & Styling:
 - Bootstrap for responsive and intuitive UI components
 
+## Project Architecture
+### Service Interface & Implementation Structure
+This project follows a structured design pattern where service interfaces and their corresponding implementations are utilized for better modularity and maintainability. By separating service interfaces from their implementations, the codebase achieves a clearer separation of concerns and facilitates unit testing.
+
 ## How to Use
 1. Clone the repository to your local machine.
 2. Build and run the Blazor web application.
