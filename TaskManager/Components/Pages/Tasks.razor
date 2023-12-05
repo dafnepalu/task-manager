@@ -1,0 +1,101 @@
+﻿@page "/tasks"
+
+@inject ITaskService TaskService
+@inject NavigationManager NavigationManager
+
+<h3>Tasks</h3>
+
+@if (userTasks == null)
+{
+    <span>Loading...</span>
+}
+else if (userTasks.Count == 0)
+{
+    <span>You haven't created any tasks yet. Click here to create one.</span>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <button @onclick="SortByName" class="btn btn-link">
+                        Name <i class="bi bi-sort-alpha-down"></i>
+                    </button>
+                </th>
+                <th>
+                    <button @onclick="SortByCompleted" class="btn btn-link">
+                        Completed <i class="bi bi-sort-numeric-down"></i>
+                    </button>
+                </th>
+                <th>
+                    <button @onclick="SortByPriority" class="btn btn-link">
+                        Priority <i class="bi bi-arrow-up-down"></i>
+                    </button>
+                </th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var userTask in userTasks)
+            {
+                <tr>
+                    <td>@userTask.Name</td>
+                    <td>@(userTask.IsCompleted ? "Yes" : "No")</td>
+                    <td>@userTask.Priority</td>
+                    <td><button @onclick="()=>EditTask(userTask.Id)" class="btn btn-primary">Edit</button></td>
+                    <td><button @onclick="()=>DeleteTask(userTask.Id)" class="btn btn-danger">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<UserTask>? userTasks = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        userTasks = await TaskService.GetAllTasks();
+    }
+
+    void SortByName()
+    {
+        if (userTasks != null)
+        {
+            userTasks = userTasks.OrderBy(t => t.Name).ToList();
+        }
+    }
+
+    void SortByCompleted()
+    {
+        if (userTasks != null)
+        {
+            userTasks = userTasks.OrderBy(t => t.IsCompleted).ToList();
+        }
+    }
+
+    void SortByPriority()
+    {
+        if (userTasks != null)
+        {
+            userTasks = userTasks.OrderBy(t => t.Priority).ToList();
+        }
+    }
+
+    void CreateTask()
+    {
+        NavigationManager.NavigateTo("/edit-task");
+    }
+
+    void EditTask(int Id)
+    {
+        NavigationManager.NavigateTo($"/edit-task/{Id}");
+    }
+
+    void DeleteTask(int Id)
+    {
+        NavigationManager.NavigateTo($"/delete-task/{Id}");
+    }
+}
