@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>aspnet-TaskManager-58dab199-fded-461a-89bb-88688d50e9ad</UserSecretsId>
   </PropertyGroup>

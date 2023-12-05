@@ -2,8 +2,10 @@
 
 @inject ITaskService TaskService
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
 
 @attribute [Authorize]
 
@@ -59,11 +61,29 @@ else
 }
 
 @code {
-    List<UserTask>? userTasks = null;
+    List<UserTask> userTasks { get; set; }
+    private string UserId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        userTasks = await TaskService.GetAllTasks();
+        await SetUserTasksUserId();
+
+        if (!string.IsNullOrEmpty(UserId))
+        {
+            userTasks = await TaskService.GetTasksForUser(UserId);
+        }
+    }
+
+    private async Task SetUserTasksUserId()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            var nameIdentifierClaim = user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+            UserId = nameIdentifierClaim?.Value ?? string.Empty;
+        }
     }
 
     void SortByName()
