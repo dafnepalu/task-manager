@@ -6,7 +6,7 @@ This project is a Blazor web application (server-side) built with OAuth 2.0 and 
 ## Key Features
 * Robust user authentication using OAuth 2.0 and OIDC, complementing ASP.NET Core's Identity membership system.
 * Task management functionalities, including viewing, adding, editing, and deleting tasks effortlessly.
-* Intuitive and responsive user interface with Toast notifications, ensuring immediate and user-friendly feedback for every actio
+* Intuitive and responsive user interface with Toast notifications, ensuring immediate and user-friendly feedback for every action
 
 ## Tech Stack
 ### Framework & Language:
